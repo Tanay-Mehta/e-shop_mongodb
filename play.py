@@ -5,9 +5,7 @@ db = client['e-shop']
 prod_aval = db['products in stock']
 transaction = db['products sold']
 
-
-insert_cond = input('do you want to do restore stock, sale or exit "say r , s or e": ')
-if insert_cond == 'r':
+def restore_stock():
     name = (input("which product: ")).lower().strip()
     qnt = int(input("quantity: "))
     d = prod_aval.find_one({"name":name})
@@ -16,7 +14,7 @@ if insert_cond == 'r':
         prod_aval.update_one({"name":name}, {"$set" :{"qnt": qnt + d_qnt}})
     if d==None:
         prod_aval.insert_one({"name": name, "qnt": qnt})
-elif insert_cond == "s":
+def sale():
     name = (input("which product: ")).lower().strip()
     qnt = int(input("quantity: "))
     d = prod_aval.find_one({"name": name})
@@ -40,7 +38,12 @@ elif insert_cond == "s":
                 transaction.update_one({"name": name}, {"$set": {"qnt": qnt + n_qnt}})
         else:
             print(f"this is not possible there are only {threshold_q} {d['name']} available")
-if(insert_cond == 'e'):
-    print("exit complete")
-else:
-    print("thats not a valid input")
+def check_remaining():
+    name = (input("which product: ")).lower().strip()
+    d = prod_aval.find_one({"name": name})
+    if d==None:
+        print("quantity is 0")
+    else:
+        print(f"quantity is {d['qnt']}")
+
+check_remaining()
