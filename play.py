@@ -1,52 +1,33 @@
 import pymongo
 
-class product:
-    def __init__(self, name, qnt):
-        self.quantity = qnt
-        self.name = name
-    def add(self, quantity):
-        self.quantity = self.quantity+quantity
-
 client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client['e-shop']
-collection = db['products in stock']
+prod_aval = db['products in stock']
+transaction = db['products sold']
 
-data = collection.find_one({"_id": 1})
-d = data
-data = (data['products_available'])
 
-insert_cond = input('do you want to do insert, delete or nothing "say y , d or n": ')
-if insert_cond == 'y':
-    name = input("which product: ")
+insert_cond = input('do you want to do insert, delete or nothing "say i , d or n": ')
+if insert_cond == 'i':
+    name = (input("which product: ")).lower().strip()
     qnt = int(input("quantity: "))
-    n = 1
-    for i in data:
-        if i == data.name:
-            n = 0
-            data.quantity = data.quantity+qnt
-            collection.update_one(d, {'$set':{"products_available":data}})
-    if(n == 1):
-        p = product(name, qnt)
-        data.append(p)
-        collection.update_one(d, {'$set': {"products_available": data}})
-        #insert in product
+    d = prod_aval.find_one({"name":name})
+    if d != None:
+        d_qnt = d["qnt"]
+        prod_aval.update_one({"name":name}, {"$set" :{"qnt": qnt + d_qnt}})
+    if d==None:
+        prod_aval.insert_one({"name": name, "qnt": qnt})
+elif insert_cond == "d":
+    name = (input("which product: ")).lower().strip()
+    qnt = int(input("quantity: "))
+    d = prod_aval.find_one({"name": name})
+    if(d != None):
+        threshold_q = d["qnt"]
+        if threshold_q > qnt:
+            prod_aval.update_one({"name": name}, {"$set": {"qnt": threshold_q - qnt}})
+        elif threshold_q == qnt:
+            prod_aval.delete_one({"name": name})
+        else:
+            print(f"this is not possible there are only {threshold_q} {d['name']} available")
 
-#check if product exists
-#if it does then only change quantity
-#else create new product
-# elif insert_cond == 'd':
-#
-
-#import data dynamically
-
-
-# data = {
-#     "_id" : 1,
-#     "products_available": [],
-# }
-#
-# collection.insert_one(data)
-
-#
 
 
