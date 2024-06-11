@@ -40,5 +40,7 @@ elif insert_cond == "s":
                 transaction.update_one({"name": name}, {"$set": {"qnt": qnt + n_qnt}})
         else:
             print(f"this is not possible there are only {threshold_q} {d['name']} available")
-
-
+if(insert_cond == 'e'):
+    print("exit complete")
+else:
+    print("thats not a valid input")
